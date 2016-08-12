@@ -18,7 +18,7 @@ const Panel = imports.ui.panel;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
-const Gettext = imports.gettext;
+const Gettext = imports.gettext.domain('keys-indicator');
 const _ = Gettext.gettext;
 
 let keysIndicator;
@@ -58,7 +58,6 @@ const KeysIndicator = new Lang.Class({
                                      text: _("Alt") });
 
         //put all the label together
-        //this.layoutManager = new St.BoxLayout({veritcal: false, style_class: 'box-style'});
         this.layoutManager = new St.BoxLayout({style_class: 'box-style'});
         //Todo: add 5 label using one line?
         this.layoutManager.add(this.capsLock);
@@ -91,52 +90,61 @@ const KeysIndicator = new Lang.Class({
         //CapsLock is 2; NumLock is 16; Shift is 1; Ctrl is 4; Alt is 8
         //every time we press these keys will be the numbers add
         //example <Ctrl>+<Shift> is 5
-        let keyStatusCode = Keymap.get_modifier_state();
+        let multiKeysCode = Keymap.get_modifier_state();
 
         if (capStatus){
             this.capsLock.visible = true;
-            keyStatusCode = keyStatusCode - 2;
+            multiKeysCode = multiKeysCode - 2;
         } else {
             this.capsLock.visible = false;
         }
 
         if (numStatus){
             this.numLock.visible = true;
-            keyStatusCode = keyStatusCode - 16;
+            multiKeysCode = multiKeysCode - 16;
         } else {
             this.numLock.visible = false;
         }
 
-        switch(keyStatusCode){
+        switch(multiKeysCode){
             case 1:
+                this.keyAlt.visible = false;
+                this.keyCtrl.visible = false;
                 this.keyShift.visible = true;
                 break;
             case 4:
+                this.keyAlt.visible = false;
                 this.keyCtrl.visible = true;
+                this.keyShift.visible = false;
                 break;
             case 8:
                 this.keyAlt.visible = true;
+                this.keyCtrl.visible = false;
+                this.keyShift.visible = false;
                 break;
             case 5:
+                this.keyAlt.visible = false;
                 this.keyCtrl.visible = true;
                 this.keyShift.visible = true;
                 break;
             case 9:
                 this.keyAlt.visible = true;
+                this.keyCtrl.visible = false;
                 this.keyShift.visible = true;
                 break;
             case 12:
-                this.keyCtrl.visible = true;
                 this.keyAlt.visible = true;
+                this.keyCtrl.visible = true;
+                this.keyShift.visible = false;
                 break;
             case 13:
-                this.keyCtrl.visible = true;
                 this.keyAlt.visible = true;
+                this.keyCtrl.visible = true;
                 this.keyShift.visible = true;
                 break;
             default:
-                this.keyCtrl.visible = false;
                 this.keyAlt.visible = false;
+                this.keyCtrl.visible = false;
                 this.keyShift.visible = false;
         }
     },
