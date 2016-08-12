@@ -1,0 +1,13 @@
+.label-style {
+    margin: 3px 0px;
+    padding: 0px 4px;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+}
+
+.box-style{
+    spacing: 2px;
+}
+

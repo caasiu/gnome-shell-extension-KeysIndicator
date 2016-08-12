@@ -1,0 +1,7 @@
+{
+    "uuid": "keys-indicator@caasiu.github.com",
+    "name": "Keys Indicator",
+    "description": "Show <Ctrl> & <Shift> & <Alt> & NumLock & CapsLock status on panel",
+    "shell-version": ["3.18", "3.20"],
+    "url": "https://github.com/caasiu/gnome-shell-extension-KeysIndicator"
+}
