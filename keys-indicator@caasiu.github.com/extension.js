@@ -68,8 +68,7 @@ const KeysIndicator = new Lang.Class({
 
         //add the box to the panel 
         this.actor.add_actor(this.layoutManager);
-        //this.actor.visible = false;
-        Keymap.connect('state_changed', Lang.bind(this, this._updateStatus));
+        this.actor.visible = false;
     },
 
     setActive: function(enable){
@@ -150,7 +149,7 @@ const KeysIndicator = new Lang.Class({
     },
 
     destroy: function(){
-        //this.setActive(false);
+        this.setActive(false);
         this.parent();
     },
 
@@ -165,7 +164,7 @@ function init(){
 function enable(){
 
     keysIndicator = new KeysIndicator;
-    //keysIndicator.setActive(true);
+    keysIndicator.setActive(true);
 
     //the number '2' is for position
     //0 is left(default); 1 is middle; 2 is right;
