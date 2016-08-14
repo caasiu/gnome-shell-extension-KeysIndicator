@@ -73,8 +73,9 @@ const KeysIndicator = new Lang.Class({
 
     setActive: function(enable){
         if (enable){
-            this.actor.visible = true;
             this._KeyStatusId = Keymap.connect('state_changed', Lang.bind(this, this._updateStatus));
+            //when extension was enabled, check whether numLock or capsLock is on
+            this._updateStatus();
         } else {
             this.actor.visible = false;
             Keymap.disconnect(this._KeyStatusId);
@@ -91,6 +92,12 @@ const KeysIndicator = new Lang.Class({
         //example <Ctrl>+<Shift> is 5
         let multiKeysCode = Keymap.get_modifier_state();
 
+        if (capStatus || numStatus || multiKeysCode){
+            this.actor.visible = true;
+        } else {
+            this.actor.visible = false;
+        }
+
         if (capStatus){
             this.capsLock.visible = true;
             multiKeysCode = multiKeysCode - 2;
@@ -104,6 +111,9 @@ const KeysIndicator = new Lang.Class({
         } else {
             this.numLock.visible = false;
         }
+
+        //key <Win> number is 64 
+        if ((multiKeysCode >= 64)&&(multiKeysCode <= 77)){multiKeysCode = multiKeysCode - 64; }
 
         switch(multiKeysCode){
             case 1:
