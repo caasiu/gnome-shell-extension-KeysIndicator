@@ -10,9 +10,9 @@ const Atk = imports.gi.Atk;
 const Gdk = imports.gi.Gdk;
 const Keymap = Gdk.Keymap.get_default();
 
-//const ExtensionUtils = imports.misc.extensionUtils;
-//const Me = ExtensionUtils.getCurrentExtension();
-//const Convenience = Me.imports.convenience;
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const Convenience = Me.imports.convenience;
 
 const Panel = imports.ui.panel;
 const PanelMenu = imports.ui.panelMenu;
@@ -166,8 +166,8 @@ const KeysIndicator = new Lang.Class({
 });
 
 
-function init(){
-
+function init(metadata){
+    Convenience.initTranslations("keys-indicator");
 }
 
 

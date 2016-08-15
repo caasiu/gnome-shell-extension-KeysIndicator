@@ -3,5 +3,6 @@
     "name": "Keys Indicator",
     "description": "Show <Ctrl> & <Shift> & <Alt> & NumLock & CapsLock status on panel",
     "shell-version": ["3.18", "3.20"],
+    "settings-schema": "org.gnome.shell.extensions.keysindicator",
     "url": "https://github.com/caasiu/gnome-shell-extension-KeysIndicator"
 }
