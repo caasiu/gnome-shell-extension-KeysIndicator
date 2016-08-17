@@ -21,7 +21,8 @@ const PopupMenu = imports.ui.popupMenu;
 const Gettext = imports.gettext.domain('keys-indicator');
 const _ = Gettext.gettext;
 
-let keysIndicator;
+let keysIndicator, sideId, orderId;
+let setting = Convenience.getSettings();
 
 
 const KeysIndicator = new Lang.Class({
@@ -36,6 +37,7 @@ const KeysIndicator = new Lang.Class({
                                        y_align: Clutter.ActorAlign.CENTER,
                                        visible: false,
                                        text: _("A") });
+        //this.capsLock.set_style('color: red; border: 1px solid red;');
 
         this.numLock = new St.Label({ style_class: "label-style",
                                       y_align: Clutter.ActorAlign.CENTER,
@@ -165,6 +167,47 @@ const KeysIndicator = new Lang.Class({
 
 });
 
+//according to panel._addToPanelBox function from Github/Gnome-shell/panel.js
+function setPosition() {
+    if (keysIndicator)
+        keysIndicator.destroy();
+
+    //have to create a new class, don't know why
+    keysIndicator = new KeysIndicator;
+    keysIndicator.setActive(true);
+
+    let container = keysIndicator.container;
+    container.show();
+    let parent = container.get_parent();
+    if (parent)
+        parent.remove_actor(container);
+
+    let side = setting.get_string('position-side');
+    let order = setting.get_int('position-order');
+
+    if (side == 'left') {
+        if (order >= Main.panel._leftBox.get_n_children()){
+            order = 0;
+            setting.set_int('position-order', order);
+        }
+        let index = Main.panel._leftBox.get_n_children() - order - 1;
+        Main.panel._leftBox.insert_child_at_index(container, index);
+    }
+    else if (side == 'right') {
+        if (order >= Main.panel._rightBox.get_n_children()){
+            order = 0;
+            setting.set_int('position-order', order);
+        }
+        let index = Main.panel._rightBox.get_n_children() - order - 1;
+        Main.panel._rightBox.insert_child_at_index(container, index);
+    }
+
+    let destroyId = keysIndicator.connect('destroy', Lang.bind(this, function(emitter) {
+        emitter.disconnect(destroyId);
+        container.destroy();
+    }));
+}
+
 
 function init(metadata){
     Convenience.initTranslations("keys-indicator");
@@ -176,12 +219,14 @@ function enable(){
     keysIndicator = new KeysIndicator;
     keysIndicator.setActive(true);
 
-    //the number '2' is for position
-    //0 is left(default); 1 is middle; 2 is right;
-    Main.panel.addToStatusArea('keysIndicator', keysIndicator, 2);
+    setPosition();
+    sideId = setting.connect('changed::position-side', Lang.bind(this, setPosition));
+    orderId = setting.connect('changed::position-order', Lang.bind(this, setPosition));
 }
 
 
 function disable(){
     keysIndicator.destroy();
+    setting.disconnect(sideId);
+    setting.disconnect(orderId);
 }
