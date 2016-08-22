@@ -169,13 +169,6 @@ const KeysIndicator = new Lang.Class({
 
 //according to panel._addToPanelBox function from Github/Gnome-shell/panel.js
 function setPosition() {
-    if (keysIndicator)
-        keysIndicator.destroy();
-
-    //have to create a new class, don't know why
-    keysIndicator = new KeysIndicator;
-    keysIndicator.setActive(true);
-
     let container = keysIndicator.container;
     container.show();
     let parent = container.get_parent();
@@ -208,6 +201,17 @@ function setPosition() {
     }));
 }
 
+function rePosition(){
+    if (keysIndicator)
+        keysIndicator.destroy();
+
+    //have to create a new class, don't know why
+    keysIndicator = new KeysIndicator;
+    keysIndicator.setActive(true);
+
+    setPosition();
+}
+
 
 function init(metadata){
     Convenience.initTranslations("keys-indicator");
@@ -218,10 +222,10 @@ function enable(){
 
     keysIndicator = new KeysIndicator;
     keysIndicator.setActive(true);
-
     setPosition();
-    sideId = setting.connect('changed::position-side', Lang.bind(this, setPosition));
-    orderId = setting.connect('changed::position-order', Lang.bind(this, setPosition));
+
+    sideId = setting.connect('changed::position-side', Lang.bind(this, rePosition));
+    orderId = setting.connect('changed::position-order', Lang.bind(this, rePosition));
 }
 
 
