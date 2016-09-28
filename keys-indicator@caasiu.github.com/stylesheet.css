@@ -7,6 +7,15 @@
     font-weight: bold;
 }
 
+.grayout-style {
+    margin: 3px 0px;
+    padding: 0px 4px;
+    border: 1px solid rgba(148,148,148,0.4);
+    border-radius: 5px;
+    color: rgba(148,148,148,0.4);
+    font-weight: bold;
+}
+
 .box-style{
     spacing: 2px;
 }

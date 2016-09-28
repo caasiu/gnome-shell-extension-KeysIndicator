@@ -75,16 +75,52 @@ const KeysIndicator = new Lang.Class({
 
     setActive: function(enable){
         if (enable){
-            this._KeyStatusId = Keymap.connect('state_changed', Lang.bind(this, this._updateStatus));
-            //when extension was enabled, check whether numLock or capsLock is on
-            this._updateStatus();
+            let styleName = setting.get_string('styles');
+
+            if (styleName == 'popup'){
+                //init
+                this.actor.visible = false;
+
+                this.keyAlt.visible = false;
+                this.keyAlt.remove_style_class_name("grayout-style");
+
+                this.keyCtrl.visible = false;
+                this.keyCtrl.remove_style_class_name("grayout-style");
+
+                this.keyShift.visible = false;
+                this.keyShift.remove_style_class_name("grayout-style");
+
+                this.capsLock.visible = false;
+                this.capsLock.remove_style_class_name("grayout-style");
+
+                this.numLock.visible = false;
+                this.numLock.remove_style_class_name("grayout-style");
+
+                this._KeyStatusId = Keymap.connect('state_changed', Lang.bind(this, this._popupStyle));
+                //when extension was enabled, check whether numLock or capsLock is on
+                this._popupStyle();
+
+            }
+
+            if (styleName == 'grayout'){
+                this.actor.visible = true;
+                this.keyAlt.visible = true;
+                this.keyCtrl.visible = true;
+                this.keyShift.visible = true;
+                this.capsLock.visible = true;
+                this.numLock.visible = true;
+
+                this._KeyStatusId = Keymap.connect('state_changed', Lang.bind(this, this._grayoutStyle));
+                this._grayoutStyle();
+            }
+        
         } else {
             this.actor.visible = false;
             Keymap.disconnect(this._KeyStatusId);
         }
     },
 
-    _updateStatus: function(){
+    _popupStyle: function(){
         let capStatus = Keymap.get_caps_lock_state();
         let numStatus = Keymap.get_num_lock_state();
 
@@ -160,6 +196,62 @@ const KeysIndicator = new Lang.Class({
         }
     },
 
+    _grayoutStyle: function(){
+        let capStatus = Keymap.get_caps_lock_state();
+        let numStatus = Keymap.get_num_lock_state();
+        let multiKeysCode = Keymap.get_modifier_state();
+
+        if (capStatus){
+            this.capsLock.remove_style_class_name("grayout-style");
+            multiKeysCode = multiKeysCode - 2;
+        } else {
+            this.capsLock.add_style_class_name("grayout-style");
+        }
+
+        if (numStatus){
+            this.numLock.remove_style_class_name("grayout-style");
+            multiKeysCode = multiKeysCode - 16;
+        } else {
+            this.numLock.add_style_class_name("grayout-style");
+        }
+
+        //key <Win> number is 64 
+        if ((multiKeysCode >= 64)&&(multiKeysCode <= 77)){multiKeysCode = multiKeysCode - 64; }
+
+        switch(multiKeysCode){
+            case 1:
+                this.keyShift.remove_style_class_name("grayout-style");
+                break;
+            case 4:
+                this.keyCtrl.remove_style_class_name("grayout-style");
+                break;
+            case 8:
+                this.keyAlt.remove_style_class_name("grayout-style");
+                break;
+            case 5:
+                this.keyCtrl.remove_style_class_name("grayout-style");
+                this.keyShift.remove_style_class_name("grayout-style");
+                break;
+            case 9:
+                this.keyAlt.remove_style_class_name("grayout-style");
+                this.keyShift.remove_style_class_name("grayout-style");
+                break;
+            case 12:
+                this.keyAlt.remove_style_class_name("grayout-style");
+                this.keyCtrl.remove_style_class_name("grayout-style");
+                break;
+            case 13:
+                this.keyAlt.remove_style_class_name("grayout-style");
+                this.keyCtrl.remove_style_class_name("grayout-style");
+                this.keyShift.remove_style_class_name("grayout-style");
+                break;
+            default:
+                this.keyAlt.add_style_class_name("grayout-style");
+                this.keyCtrl.add_style_class_name("grayout-style");
+                this.keyShift.add_style_class_name("grayout-style");
+        }
+    },
+
     destroy: function(){
         this.setActive(false);
         this.parent();
@@ -226,6 +318,10 @@ function enable(){
 
     sideId = setting.connect('changed::position-side', Lang.bind(this, rePosition));
     orderId = setting.connect('changed::position-order', Lang.bind(this, rePosition));
+    styleId = setting.connect('changed::styles', Lang.bind(this, function(){
+        keysIndicator.setActive(false);
+        keysIndicator.setActive(true);
+    }));
 }
 
 
