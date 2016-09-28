@@ -26,6 +26,24 @@ const KeysPrefsWidget = new GObject.Class({
         this.parent(params);
         this.set_orientation(Gtk.Orientation.VERTICAL);
 
+        //extention style
+        let StyleBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 10});
+        let StyleLabel = new Gtk.Label({label:_("Style:"), xalign:0});
+        let StyleWidget = new Gtk.ComboBoxText();
+        let styles = {'popup':_("Pop-Up"), 'grayout':_("Gray-Out")};
+        for (name in styles) {
+            StyleWidget.append(name, styles[name]);
+        }
+
+        StyleWidget.set_active_id(setting.get_string('styles'));
+        StyleWidget.connect('changed', function(comboWidget) {
+            setting.set_string('styles', comboWidget.get_active_id());
+        });
+
+        StyleBox.pack_start(StyleLabel, true, true, 0);
+        StyleBox.add(StyleWidget);
+        this.add(StyleBox);
+
         //position side in panel (left/right)
         let SideBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 10});
         let SideLabel = new Gtk.Label({label:_("Position Side:"), xalign:0});

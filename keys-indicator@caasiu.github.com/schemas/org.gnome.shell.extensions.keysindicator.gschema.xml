@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="gnome-shell-extension-keysindicator">
     <schema path="/org/gnome/shell/extensions/keysindicator/" id="org.gnome.shell.extensions.keysindicator">
+        <key name="styles" type="s">
+            <default>'popup'</default>
+            <summary>Set indicator style</summary>
+        </key>
         <key name="position-side" type="s">
             <default>'right'</default>
             <summary>Set indicator position on left/right of panel</summary>
