@@ -329,4 +329,5 @@ function disable(){
     keysIndicator.destroy();
     setting.disconnect(sideId);
     setting.disconnect(orderId);
+    setting.disconnect(styleId);
 }
