@@ -62,23 +62,23 @@ const KeysPrefsWidget = new GObject.Class({
         this.add(SideBox);
 
         
-        //position order in panel
-        let OrderBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin:10});
-        let OrderLabel = new Gtk.Label({label:_("Position Order:"), xalign:0});
-        let OrderWidget = new Gtk.SpinButton();
+        //position index in panel
+        let IndexBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin:10});
+        let IndexLabel = new Gtk.Label({label:_("Position Index:"), xalign:0});
+        let IndexWidget = new Gtk.SpinButton();
 
-        OrderWidget.set_sensitive(true);
-        OrderWidget.set_range(0,10);
-        OrderWidget.set_value(setting.get_int('position-order'));
-        OrderWidget.set_increments(1,2);
-        OrderWidget.connect('value-changed', function(w) {
-            setting.set_int('position-order', w.get_value_as_int());
+        IndexWidget.set_sensitive(true);
+        IndexWidget.set_range(0,10);
+        IndexWidget.set_value(setting.get_int('position-index'));
+        IndexWidget.set_increments(1,2);
+        IndexWidget.connect('value-changed', function(w) {
+            setting.set_int('position-index', w.get_value_as_int());
 
         });
 
-        OrderBox.pack_start(OrderLabel, true, true, 0);
-        OrderBox.add(OrderWidget);
-        this.add(OrderBox);
+        IndexBox.pack_start(IndexLabel, true, true, 0);
+        IndexBox.add(IndexWidget);
+        this.add(IndexBox);
 
     },
 });

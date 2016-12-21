@@ -9,9 +9,9 @@
             <default>'right'</default>
             <summary>Set indicator position on left/right of panel</summary>
         </key>
-        <key name="position-order" type="i">
-            <default>1</default>
-            <summary>Order in on the corner</summary>
+        <key name="position-index" type="i">
+            <default>0</default>
+            <summary>Index in the corner, 0 is on leftest</summary>
         </key>
     </schema>
 </schemalist>

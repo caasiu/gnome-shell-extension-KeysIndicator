@@ -21,7 +21,7 @@ const PopupMenu = imports.ui.popupMenu;
 const Gettext = imports.gettext.domain('keys-indicator');
 const _ = Gettext.gettext;
 
-let keysIndicator, sideId, orderId;
+let keysIndicator, sideId, indexId, styleId;
 let setting = Convenience.getSettings();
 
 
@@ -37,7 +37,7 @@ const KeysIndicator = new Lang.Class({
                                        y_align: Clutter.ActorAlign.CENTER,
                                        visible: false,
                                        text: _("A") });
-        //this.capsLock.set_style('color: red; border: 1px solid red;');
+        //this.capsLock.set_style('color: red; bindex: 1px solid red;');
 
         this.numLock = new St.Label({ style_class: "label-style",
                                       y_align: Clutter.ActorAlign.CENTER,
@@ -268,23 +268,17 @@ function setPosition() {
         parent.remove_actor(container);
 
     let side = setting.get_string('position-side');
-    let order = setting.get_int('position-order');
+    let index = setting.get_int('position-index');
 
-    if (side == 'left') {
-        if (order >= Main.panel._leftBox.get_n_children()){
-            order = 0;
-            setting.set_int('position-order', order);
-        }
-        let index = Main.panel._leftBox.get_n_children() - order - 1;
-        Main.panel._leftBox.insert_child_at_index(container, index);
-    }
-    else if (side == 'right') {
-        if (order >= Main.panel._rightBox.get_n_children()){
-            order = 0;
-            setting.set_int('position-order', order);
-        }
-        let index = Main.panel._rightBox.get_n_children() - order - 1;
-        Main.panel._rightBox.insert_child_at_index(container, index);
+    switch (side) {
+        case 'left':
+            Main.panel._leftBox.insert_child_at_index(container, index);
+            break;
+        case 'right':
+            Main.panel._rightBox.insert_child_at_index(container, index);
+            break;
+        default:
+            Main.panel._rightBox.insert_child_at_index(container, index);
     }
 
     let destroyId = keysIndicator.connect('destroy', Lang.bind(this, function(emitter) {
@@ -317,7 +311,7 @@ function enable(){
     setPosition();
 
     sideId = setting.connect('changed::position-side', Lang.bind(this, rePosition));
-    orderId = setting.connect('changed::position-order', Lang.bind(this, rePosition));
+    indexId = setting.connect('changed::position-index', Lang.bind(this, rePosition));
     styleId = setting.connect('changed::styles', Lang.bind(this, function(){
         keysIndicator.setActive(false);
         keysIndicator.setActive(true);
@@ -328,6 +322,6 @@ function enable(){
 function disable(){
     keysIndicator.destroy();
     setting.disconnect(sideId);
-    setting.disconnect(orderId);
+    setting.disconnect(indexId);
     setting.disconnect(styleId);
 }

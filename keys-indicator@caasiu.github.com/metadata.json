@@ -5,5 +5,5 @@
     "shell-version": ["3.18", "3.20", "3.22"],
     "settings-schema": "org.gnome.shell.extensions.keysindicator",
     "url": "https://github.com/caasiu/gnome-shell-extension-KeysIndicator",
-    "version": 2
+    "version": 3
 }
