@@ -218,6 +218,10 @@ const KeysIndicator = new Lang.Class({
         //key <Win> number is 64 
         if ((multiKeysCode >= 64)&&(multiKeysCode <= 77)){multiKeysCode = multiKeysCode - 64; }
 
+	this.keyAlt.add_style_class_name("grayout-style");
+	this.keyCtrl.add_style_class_name("grayout-style");
+	this.keyShift.add_style_class_name("grayout-style");
+	
         switch(multiKeysCode){
             case 1:
                 this.keyShift.remove_style_class_name("grayout-style");
@@ -245,10 +249,6 @@ const KeysIndicator = new Lang.Class({
                 this.keyCtrl.remove_style_class_name("grayout-style");
                 this.keyShift.remove_style_class_name("grayout-style");
                 break;
-            default:
-                this.keyAlt.add_style_class_name("grayout-style");
-                this.keyCtrl.add_style_class_name("grayout-style");
-                this.keyShift.add_style_class_name("grayout-style");
         }
     },
 
