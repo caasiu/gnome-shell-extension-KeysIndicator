@@ -1,19 +1,44 @@
 .label-style {
     margin: 3px 0px;
     padding: 0px 4px;
-    border: 1px solid #cccccc;
+    border: 1px solid rgb(204,204,204);
     border-radius: 5px;
-    color: white;
+    color: rgb(204,204,204);
     font-weight: bold;
 }
 
 .grayout-style {
     margin: 3px 0px;
     padding: 0px 4px;
-    border: 1px solid rgba(148,148,148,0.4);
+    border: 1px solid rgba(160,159,156,0.4);
     border-radius: 5px;
-    color: rgba(148,148,148,0.4);
+    color: rgba(160,159,156,0.4);
     font-weight: bold;
+}
+.grayout-style:hover {
+    border: 2px solid rgba(255,255,255,0.4);
+}
+
+.attention-on-style {
+    margin: 3px 0px;
+    padding: 0px 4px;
+    border: 1px solid red;
+    border-radius: 5px;
+    box-shadow: 0px 0px 0px 1px rgb(204,204,204) inset;
+    color: rgb(204,204,204);
+    font-weight: bold;
+    background: red;
+}
+
+.attention-off-style {
+    margin: 3px 0px;
+    padding: 0px 4px;
+    border: 1px solid rgb(204,204,204);
+    border-radius: 5px;
+    box-shadow: 0px 0px 0px 1px red inset;
+    color: red;
+    font-weight: bold;
+    background: rgb(204,204,204);
 }
 
 .box-style{

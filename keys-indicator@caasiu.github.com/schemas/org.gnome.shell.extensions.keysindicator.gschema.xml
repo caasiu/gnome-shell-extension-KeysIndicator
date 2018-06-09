@@ -13,5 +13,9 @@
             <default>0</default>
             <summary>Index in the corner, 0 is on leftest</summary>
         </key>
+        <key name="highlight-mode" type="s">
+            <default>'highlight-red'</default>
+            <summary>Highlight CAPS and NUM</summary>
+        </key>
     </schema>
 </schemalist>

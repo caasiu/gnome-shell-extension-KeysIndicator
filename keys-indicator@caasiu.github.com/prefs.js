@@ -61,7 +61,23 @@ const KeysPrefsWidget = new GObject.Class({
         SideBox.add(SideWidget);
         this.add(SideBox);
 
-        
+        //attention mode (highlight)
+        let AttentionBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin: 10});
+        let AttentionLabel = new Gtk.Label({label:_("Attention highlighting:"), xalign:0});
+        let AttentionWidget = new Gtk.ComboBoxText();
+        let highlights = {'highlight-red':_("Highlighted"), 'none':_("Disabled")};
+        for (id in highlights) {
+            AttentionWidget.append(id, highlights[id]);
+        }
+
+       AttentionWidget.set_active_id(setting.get_string('highlight-mode'));
+       AttentionWidget.connect('changed', function(comboWidget) {
+           setting.set_string('highlight-mode', comboWidget.get_active_id());
+       });
+       AttentionBox.pack_start(AttentionLabel, true, true, 0);
+       AttentionBox.add(AttentionWidget);
+       this.add(AttentionBox);
+
         //position index in panel
         let IndexBox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, margin:10});
         let IndexLabel = new Gtk.Label({label:_("Position Index:"), xalign:0});
