@@ -23,7 +23,8 @@ const _ = Gettext.gettext;
 
 let keysIndicator, sideId, indexId, styleId;
 let setting = Convenience.getSettings();
-
+let attentionId;
+let attentionMode = 'highlight-red';
 
 const KeysIndicator = new Lang.Class({
     Name: 'KeysIndicator',
@@ -48,7 +49,7 @@ const KeysIndicator = new Lang.Class({
                                       y_align: Clutter.ActorAlign.CENTER,
                                       visible: false,
                                       text: _("Ctrl") });
-        
+
         this.keyShift = new St.Label({ style_class: "label-style",
                                       y_align: Clutter.ActorAlign.CENTER,
                                       visible: false,
@@ -62,13 +63,13 @@ const KeysIndicator = new Lang.Class({
         //put all the label together
         this.layoutManager = new St.BoxLayout({style_class: 'box-style'});
         //Todo: add 5 label using one line?
-        this.layoutManager.add(this.capsLock);
-        this.layoutManager.add(this.numLock);
         this.layoutManager.add(this.keyCtrl);
         this.layoutManager.add(this.keyShift);
         this.layoutManager.add(this.keyAlt);
+        this.layoutManager.add(this.capsLock);
+        this.layoutManager.add(this.numLock);
 
-        //add the box to the panel 
+        //add the box to the panel
         this.actor.add_actor(this.layoutManager);
         this.actor.visible = false;
     },
@@ -78,31 +79,40 @@ const KeysIndicator = new Lang.Class({
             let styleName = setting.get_string('styles');
 
             if (styleName == 'popup'){
-                //init
+                //all hidden by default
                 this.actor.visible = false;
-
                 this.keyAlt.visible = false;
-                this.keyAlt.remove_style_class_name("grayout-style");
-
                 this.keyCtrl.visible = false;
-                this.keyCtrl.remove_style_class_name("grayout-style");
-
                 this.keyShift.visible = false;
-                this.keyShift.remove_style_class_name("grayout-style");
-
                 this.capsLock.visible = false;
-                this.capsLock.remove_style_class_name("grayout-style");
-
                 this.numLock.visible = false;
+
+                this.keyAlt.remove_style_class_name("grayout-style");
+                this.keyCtrl.remove_style_class_name("grayout-style");
+                this.keyShift.remove_style_class_name("grayout-style");
                 this.numLock.remove_style_class_name("grayout-style");
+                this.capsLock.remove_style_class_name("grayout-style");
 
                 this._KeyStatusId = Keymap.connect('state_changed', Lang.bind(this, this._popupStyle));
                 //when extension was enabled, check whether numLock or capsLock is on
                 this._popupStyle();
+            }
 
+            if (styleName == 'less'){
+                //show NUM and CAPS, rest hidden
+                this.actor.visible = true;
+                this.keyAlt.visible = false;
+                this.keyCtrl.visible = false;
+                this.keyShift.visible = false;
+                this.capsLock.visible = true;
+                this.numLock.visible = true;
+
+                this._KeyStatusId = Keymap.connect('state_changed', Lang.bind(this, this._lessStyle));
+                this._lessStyle();
             }
 
             if (styleName == 'grayout'){
+                //show all by default
                 this.actor.visible = true;
                 this.keyAlt.visible = true;
                 this.keyCtrl.visible = true;
@@ -113,7 +123,7 @@ const KeysIndicator = new Lang.Class({
                 this._KeyStatusId = Keymap.connect('state_changed', Lang.bind(this, this._grayoutStyle));
                 this._grayoutStyle();
             }
-        
+
         } else {
             this.actor.visible = false;
             Keymap.disconnect(this._KeyStatusId);
@@ -121,6 +131,7 @@ const KeysIndicator = new Lang.Class({
     },
 
     _popupStyle: function(){
+        let attentionMode = setting.get_string('highlight-mode');
         let capStatus = Keymap.get_caps_lock_state();
         let numStatus = Keymap.get_num_lock_state();
 
@@ -130,27 +141,153 @@ const KeysIndicator = new Lang.Class({
         //example <Ctrl>+<Shift> is 5
         let multiKeysCode = Keymap.get_modifier_state();
 
-        if (capStatus || numStatus || multiKeysCode){
-            this.actor.visible = true;
-        } else {
-            this.actor.visible = false;
-        }
+        if (attentionMode == 'highlight-red'){
+            if (capStatus || !(numStatus) || multiKeysCode){
+                this.actor.visible = true;
+            } else { //hide all if nothing pressed, but numlock on
+                this.actor.visible = false;
+            }
 
-        if (capStatus){
-            this.capsLock.visible = true;
-            multiKeysCode = multiKeysCode - 2;
+            if (capStatus){ //normal behavior: hidden when capslock off
+                this.capsLock.visible = true;
+                this.capsLock.add_style_class_name("attention-on-style");
+            } else {
+                this.capsLock.visible = false;
+                this.capsLock.remove_style_class_name("attention-on-style");
+            }
+
+            if (numStatus){ //inverted behavior: hidden when numlock on
+                this.numLock.visible = false;
+                this.numLock.remove_style_class_name("attention-off-style");
+            } else {
+                this.numLock.visible = true;
+                this.numLock.add_style_class_name("attention-off-style");
+            }
         } else {
-            this.capsLock.visible = false;
+            this.capsLock.remove_style_class_name("attention-on-style");
+            this.numLock.remove_style_class_name("attention-off-style");
+            if (capStatus || numStatus || multiKeysCode){
+                this.actor.visible = true;
+            } else { //hide all if nothing pressed/locked
+                this.actor.visible = false;
+            }
+
+            if (capStatus){ //normal behavior: hidden when capslock off
+                this.capsLock.visible = true;
+            } else {
+                this.capsLock.visible = false;
+            }
+
+            if (numStatus){ //normal behavior: hidden when numlock off
+                this.numLock.visible = true;
+            } else {
+                this.numLock.visible = false;
+            }
+        }
+        if (capStatus){
+            multiKeysCode = multiKeysCode - 2;
         }
 
         if (numStatus){
-            this.numLock.visible = true;
             multiKeysCode = multiKeysCode - 16;
+        }
+        //key <Win> number is 64
+        if ((multiKeysCode >= 64)&&(multiKeysCode <= 77)){multiKeysCode = multiKeysCode - 64; }
+
+        switch(multiKeysCode){
+            case 1:
+                this.keyAlt.visible = false;
+                this.keyCtrl.visible = false;
+                this.keyShift.visible = true;
+                break;
+            case 4:
+                this.keyAlt.visible = false;
+                this.keyCtrl.visible = true;
+                this.keyShift.visible = false;
+                break;
+            case 8:
+                this.keyAlt.visible = true;
+                this.keyCtrl.visible = false;
+                this.keyShift.visible = false;
+                break;
+            case 5:
+                this.keyAlt.visible = false;
+                this.keyCtrl.visible = true;
+                this.keyShift.visible = true;
+                break;
+            case 9:
+                this.keyAlt.visible = true;
+                this.keyCtrl.visible = false;
+                this.keyShift.visible = true;
+                break;
+            case 12:
+                this.keyAlt.visible = true;
+                this.keyCtrl.visible = true;
+                this.keyShift.visible = false;
+                break;
+            case 13:
+                this.keyAlt.visible = true;
+                this.keyCtrl.visible = true;
+                this.keyShift.visible = true;
+                break;
+            default:
+                this.keyAlt.visible = false;
+                this.keyCtrl.visible = false;
+                this.keyShift.visible = false;
+        }
+    },
+
+    _lessStyle: function(){
+        let attentionMode = setting.get_string('highlight-mode');
+        let capStatus = Keymap.get_caps_lock_state();
+        let numStatus = Keymap.get_num_lock_state();
+        let multiKeysCode = Keymap.get_modifier_state();
+
+        //show NUM and CAPS, rest hidden
+        this.capsLock.visible = true;
+        this.numLock.visible = true;
+
+        if (attentionMode == 'highlight-red'){
+            if (capStatus){
+                this.capsLock.remove_style_class_name("grayout-style");
+                this.capsLock.add_style_class_name("attention-on-style");
+            } else {
+                this.capsLock.remove_style_class_name("attention-on-style");
+                this.capsLock.add_style_class_name("grayout-style");
+            }
+
+            if (numStatus){
+                this.numLock.remove_style_class_name("attention-off-style");
+            } else {
+                this.numLock.add_style_class_name("attention-off-style");
+            }
         } else {
-            this.numLock.visible = false;
+            this.capsLock.remove_style_class_name("attention-on-style");
+            this.numLock.remove_style_class_name("attention-off-style");
+            if (capStatus){
+                this.capsLock.remove_style_class_name("grayout-style");
+            } else {
+                this.capsLock.add_style_class_name("grayout-style");
+            }
+
+            if (numStatus){
+                this.numLock.remove_style_class_name("grayout-style");
+            } else {
+                this.numLock.add_style_class_name("grayout-style");
+            }
+        }
+        if (capStatus){
+            multiKeysCode = multiKeysCode - 2;
         }
 
-        //key <Win> number is 64 
+        if (numStatus){
+            multiKeysCode = multiKeysCode - 16;
+        }
+
+        this.keyAlt.add_style_class_name("grayout-style");
+        this.keyCtrl.add_style_class_name("grayout-style");
+        this.keyShift.add_style_class_name("grayout-style");
+        //key <Win> number is 64
         if ((multiKeysCode >= 64)&&(multiKeysCode <= 77)){multiKeysCode = multiKeysCode - 64; }
 
         switch(multiKeysCode){
@@ -197,31 +334,55 @@ const KeysIndicator = new Lang.Class({
     },
 
     _grayoutStyle: function(){
+        let attentionMode = setting.get_string('highlight-mode');
         let capStatus = Keymap.get_caps_lock_state();
         let numStatus = Keymap.get_num_lock_state();
         let multiKeysCode = Keymap.get_modifier_state();
 
-        if (capStatus){
-            this.capsLock.remove_style_class_name("grayout-style");
-            multiKeysCode = multiKeysCode - 2;
+        if (attentionMode == 'highlight-red'){
+            if (capStatus){
+                this.capsLock.remove_style_class_name("grayout-style");
+                this.capsLock.add_style_class_name("attention-on-style");
+            } else {
+                this.capsLock.remove_style_class_name("attention-on-style");
+                this.capsLock.add_style_class_name("grayout-style");
+            }
+
+            if (numStatus){
+                this.numLock.remove_style_class_name("attention-off-style");
+            } else {
+                this.numLock.add_style_class_name("attention-off-style");
+            }
         } else {
-            this.capsLock.add_style_class_name("grayout-style");
+            this.capsLock.remove_style_class_name("attention-on-style");
+            this.numLock.remove_style_class_name("attention-off-style");
+            if (capStatus){
+                this.capsLock.remove_style_class_name("grayout-style");
+            } else {
+                this.capsLock.add_style_class_name("grayout-style");
+            }
+
+            if (numStatus){
+                this.numLock.remove_style_class_name("grayout-style");
+            } else {
+                this.numLock.add_style_class_name("grayout-style");
+            }
+        }
+        if (capStatus){
+            multiKeysCode = multiKeysCode - 2;
         }
 
         if (numStatus){
-            this.numLock.remove_style_class_name("grayout-style");
             multiKeysCode = multiKeysCode - 16;
-        } else {
-            this.numLock.add_style_class_name("grayout-style");
         }
 
-        //key <Win> number is 64 
+        //key <Win> number is 64
         if ((multiKeysCode >= 64)&&(multiKeysCode <= 77)){multiKeysCode = multiKeysCode - 64; }
 
-	this.keyAlt.add_style_class_name("grayout-style");
-	this.keyCtrl.add_style_class_name("grayout-style");
-	this.keyShift.add_style_class_name("grayout-style");
-	
+        this.keyAlt.add_style_class_name("grayout-style");
+        this.keyCtrl.add_style_class_name("grayout-style");
+        this.keyShift.add_style_class_name("grayout-style");
+
         switch(multiKeysCode){
             case 1:
                 this.keyShift.remove_style_class_name("grayout-style");
@@ -316,6 +477,10 @@ function enable(){
         keysIndicator.setActive(false);
         keysIndicator.setActive(true);
     }));
+    attentionId = setting.connect('changed::highlight-mode', Lang.bind(this, function(){
+        keysIndicator.setActive(false);
+        keysIndicator.setActive(true);
+    }));
 }
 
 
@@ -324,4 +489,5 @@ function disable(){
     setting.disconnect(sideId);
     setting.disconnect(indexId);
     setting.disconnect(styleId);
+    setting.disconnect(attentionId);
 }
